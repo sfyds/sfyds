@@ -6,11 +6,11 @@ LOGIN = os.environ.get("LOGIN", "sfyds")
 TOKEN = os.environ.get("GITHUB_TOKEN")
 
 THEMES = {
-    "grid.svg": {       # light mode
+    "pink-grid.svg": {       # light mode
         "levels": ["#eff2f5", "#ffc0e0", "#ff8cc6", "#ff4fa7", "#d6006f"],
         "text": "#59636e", "title": "#1f2328",
     },
-    "grid-dark.svg": {  # dark mode
+    "pink-grid-dark.svg": {  # dark mode
         "levels": ["#151b23", "#5c1a3d", "#9c2a66", "#e0458f", "#ff8cc6"],
         "text": "#9198a1", "title": "#f0f6fc",
     },
@@ -46,7 +46,7 @@ def render(cal, theme):
 
     total = cal["totalContributions"]
     out.append(f'<text x="0" y="14" font-size="14" fill="{theme["title"]}">'
-               f'{total} contributions in the last year</text>')
+               f'{total} contribution{"" if total == 1 else "s"} in the last year</text>')
 
     # month labels
     last_month, last_x = None, -100
