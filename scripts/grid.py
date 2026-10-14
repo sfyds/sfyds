@@ -1,5 +1,5 @@
 """Draw the GitHub contribution grid as SVG (light + dark), in pink."""
-import json, os, urllib.request
+import json, os, urllib.error, urllib.request
 from datetime import date
 
 LOGIN = os.environ.get("LOGIN", "sfyds")
@@ -33,7 +33,14 @@ def fetch():
         data=json.dumps({"query": query, "variables": {"login": LOGIN}}).encode(),
         headers={"Authorization": f"bearer {TOKEN}", "Content-Type": "application/json"},
     )
-    data = json.load(urllib.request.urlopen(req))
+    if not TOKEN:
+        raise SystemExit("No token: add a GH_PAT secret (classic token, scope read:user).")
+    try:
+        data = json.load(urllib.request.urlopen(req))
+    except urllib.error.HTTPError as e:
+        raise SystemExit(f"GitHub API error {e.code}: {e.read().decode()}")
+    if "errors" in data:
+        raise SystemExit(f"GitHub API error: {data['errors']}")
     return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
 
 
