@@ -1,6 +1,6 @@
 name: pink grid
 on:
-  schedule: [{cron: "0 0 * * *"}]
+  schedule: [{cron: "0 * * * *"}]
   workflow_dispatch:
 permissions:
   contents: write
@@ -8,14 +8,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: Platane/snk@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/grid.svg?color_snake=#d6006f&color_dots=#ebedf0,#ffc0e0,#ff8cc6,#ff4fa7,#d6006f
-      - uses: crazy-max/ghaction-github-pages@v4
-        with:
-          target_branch: output
-          build_dir: dist
+      - uses: actions/checkout@v4
+      - run: python3 scripts/grid.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LOGIN: ${{ github.repository_owner }}
+      - name: push to output branch
+        run: |
+          cd dist
+          git init -b output
+          git add .
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m "update grid"
+          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git output
