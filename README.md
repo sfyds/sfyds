@@ -1,4 +1,2 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/sfyds/sfyds/output/pink-grid-dark.svg">
-  <img alt="pink contribution grid" src="https://raw.githubusercontent.com/sfyds/sfyds/output/pink-grid.svg">
-</picture>
+![pink contribution grid](https://raw.githubusercontent.com/sfyds/sfyds/output/pink-grid-dark.svg#gh-dark-mode-only)
+![pink contribution grid](https://raw.githubusercontent.com/sfyds/sfyds/output/pink-grid.svg#gh-light-mode-only)
