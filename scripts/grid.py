@@ -10,9 +10,9 @@ THEMES = {
         "levels": ["#eff2f5", "#ffc0e0", "#ff8cc6", "#ff4fa7", "#d6006f"],
         "text": "#59636e", "title": "#1f2328",
     },
-    "pink-grid-dark.svg": {  # dark mode
-        "levels": ["#151b23", "#5c1a3d", "#9c2a66", "#e0458f", "#ff8cc6"],
-        "text": "#9198a1", "title": "#f0f6fc",
+    "pink-grid-dark.svg": {  # works on dark AND light backgrounds
+        "levels": ["#8b949e33", "#f9a8d4", "#f472b6", "#db2777", "#9d174d"],
+        "text": "#8b949e", "title": "#8b949e",
     },
 }
 LEVEL = {"NONE": 0, "FIRST_QUARTILE": 1, "SECOND_QUARTILE": 2,
