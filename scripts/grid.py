@@ -24,13 +24,19 @@ LEFT, TOP = 33, 40
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif"
 
 
-def fetch():
-    query = """query($login:String!){user(login:$login){contributionsCollection{
+def fetch(year=None):
+    """Last 12 months, or a whole calendar year if `year` is given."""
+    query = """query($login:String!,$from:DateTime,$to:DateTime){user(login:$login){
+      contributionsCollection(from:$from,to:$to){contributionYears
       contributionCalendar{totalContributions weeks{contributionDays{
       date weekday contributionCount contributionLevel}}}}}}"""
+    variables = {"login": LOGIN}
+    if year:
+        variables["from"] = f"{year}-01-01T00:00:00Z"
+        variables["to"] = f"{year}-12-31T23:59:59Z"
     req = urllib.request.Request(
         "https://api.github.com/graphql",
-        data=json.dumps({"query": query, "variables": {"login": LOGIN}}).encode(),
+        data=json.dumps({"query": query, "variables": variables}).encode(),
         headers={"Authorization": f"bearer {TOKEN}", "Content-Type": "application/json"},
     )
     if not TOKEN:
@@ -41,7 +47,11 @@ def fetch():
         raise SystemExit(f"GitHub API error {e.code}: {e.read().decode()}")
     if "errors" in data:
         raise SystemExit(f"GitHub API error: {data['errors']}")
-    return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+    coll = data["data"]["user"]["contributionsCollection"]
+    cal = coll["contributionCalendar"]
+    cal["years"] = coll["contributionYears"]
+    cal["label"] = f"in {year}" if year else "in the last year"
+    return cal
 
 
 def render(cal, theme):
@@ -53,7 +63,7 @@ def render(cal, theme):
 
     total = cal["totalContributions"]
     out.append(f'<text x="0" y="14" font-size="14" fill="{theme["title"]}">'
-               f'{total} contribution{"" if total == 1 else "s"} in the last year</text>')
+               f'{total} contribution{"" if total == 1 else "s"} {cal["label"]}</text>')
 
     # month labels
     last_month, last_x = None, -100
@@ -93,10 +103,19 @@ def render(cal, theme):
     return "\n".join(out)
 
 
-if __name__ == "__main__":
-    cal = fetch()
-    os.makedirs("dist", exist_ok=True)
+def save(cal, suffix=""):
     for name, theme in THEMES.items():
-        with open(f"dist/{name}", "w") as f:
+        path = "dist/" + name.replace(".svg", f"{suffix}.svg")
+        with open(path, "w") as f:
             f.write(render(cal, theme))
-    print("done:", cal["totalContributions"], "contributions")
+
+
+if __name__ == "__main__":
+    os.makedirs("dist", exist_ok=True)
+    cal = fetch()
+    save(cal)                                  # pink-grid-dark.svg (last year)
+    print("last year:", cal["totalContributions"])
+    for year in cal["years"]:                  # pink-grid-dark-2025.svg, ...
+        y = fetch(year)
+        save(y, f"-{year}")
+        print(year, y["totalContributions"])
